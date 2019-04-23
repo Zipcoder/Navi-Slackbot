@@ -1,0 +1,10 @@
+requests
+slackclient
+
+beautifulsoup4
+
+lxml
+
+datetime
+
+gitpython
