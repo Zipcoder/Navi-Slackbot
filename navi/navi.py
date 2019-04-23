@@ -13,9 +13,9 @@ sc = SlackClient(slack_token)
 raw_channels = sc.api_call(
     "channels.list"
 )['channels']
-unarchived_channels = [channel for channel in raw_channels if not channel['is_archived']]
+unarchived_large_channels = [channel for channel in raw_channels if not channel['is_archived'] and len(channel['members']) > 5]
 channels = {}
-for channel in unarchived_channels:
+for channel in unarchived_large_channels:
     channels[channel['id']] = channel['name']
 
 print(channels)
@@ -56,6 +56,7 @@ def parse_attachment(attachment, message, links):
 def get_links(raw_messages):
     links = set()
     for message in raw_messages:
+        print(message)
         parse_message(message, links)
         if 'attachments' in message:
             for attachment in message['attachments']:
@@ -63,17 +64,24 @@ def get_links(raw_messages):
     return links
 
 
-channels = {'C7S5D2KRC': 'general'}
+repo = Repo('/Users/eleonorbart/Projects/Python/Navi')
+commit_message = 'Trial committing file'
+fileList = []
 for channel_id in channels.keys():
     links = get_links(get_messages(channel_id))
     if len(links) > 0:
-        file = open(f"navi/files/{channels[channel_id]}.txt", "w+")
-        file.write(f"# {channels[channel_id]} \n\n")
+        #file = open(f"navi/files/{channels[channel_id]}.md", "w+")
+        #file.write(f"# {channels[channel_id]} \n\n")
         for link in links:
             try:
                 title = BeautifulSoup(requests.get(link[0]).text, 'lxml').title.string
             except:
                 title = link
-            file.write(f"[{title}]({link[0]})\nBy:{users[link[2]]}"
-                       f" At:{datetime.fromtimestamp(float(link[1])).strftime('%b %d %Y %I:%M:%S%p')}\n\n")
-        file.close()
+           # file.write(f"[{title}]({link[0]})\n\nBy: {users[link[2]]}"
+                      # f" Posted: {datetime.fromtimestamp(float(link[1])).strftime('%b %d %Y %I:%M:%S%p')}\n\n")
+       # file.close()
+       # fileList.append(file.name)
+# repo.index.add(fileList)
+# repo.index.commit(commit_message)
+# origin = repo.remote('origin')
+# origin.push()
