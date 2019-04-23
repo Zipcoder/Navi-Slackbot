@@ -1,0 +1,23 @@
+# group8_videolibrary 
+
+[Maven – Page Not Found](http://maven.apache.org/POM/4.0.0)
+By:Sravani Vedam At:Apr 10 2019 03:19:02PM
+
+[('https://www.getpostman.com/collections/5d1bd76aeb0d1293f761', '1555436752.006500', 'UFN54SG3B')](https://www.getpostman.com/collections/5d1bd76aeb0d1293f761)
+By:Marlys Alvarado At:Apr 16 2019 01:45:52PM
+
+[('https://s3.us-east-2.amazonaws.com/phoenix.videos/IMG_4786.mp4', '1554906495.001200', 'UFMQZHDQR')](https://s3.us-east-2.amazonaws.com/phoenix.videos/IMG_4786.mp4)
+By:Kyle Carter At:Apr 10 2019 10:28:15AM
+
+[('mysql://localhost:3306/phoenixvideos?useUnicode=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC', '1554920667.000200', 'UFVAN80BT')](mysql://localhost:3306/phoenixvideos?useUnicode=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC)
+By:Sravani Vedam At:Apr 10 2019 02:24:27PM
+
+[('https://s3.us-east-2.amazonaws.com/phoenix.videos/BigBuckBunny.mp4', '1554905786.001000', 'UFMQZHDQR')](https://s3.us-east-2.amazonaws.com/phoenix.videos/BigBuckBunny.mp4)
+By:Kyle Carter At:Apr 10 2019 10:16:26AM
+
+[('mysql://phoenix-db-instance.c57hkqxddiqj.us-east-2.rds.amazonaws.com:3306/phoenixvids', '1555444509.007400', 'UFMQZHDQR')](mysql://phoenix-db-instance.c57hkqxddiqj.us-east-2.rds.amazonaws.com:3306/phoenixvids)
+By:Kyle Carter At:Apr 16 2019 03:55:09PM
+
+[('https://s3.us-east-2.amazonaws.com/phoenix.videos/IMG_4786.MOV', '1554901842.000400', 'UFMQZHDQR')](https://s3.us-east-2.amazonaws.com/phoenix.videos/IMG_4786.MOV)
+By:Kyle Carter At:Apr 10 2019 09:10:42AM
+

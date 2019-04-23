@@ -1,0 +1,20 @@
+# nhu-group 
+
+[Map in Java & HashMap example | Java Collections # 9 | Java9s.com - YouTube](https://www.youtube.com/watch?v=hgawTLk0o3Y)
+By:Sherrese Watson At:Feb 27 2019 12:54:29PM
+
+[Java Fundamentals: The Java Language | Pluralsight](https://app.pluralsight.com/library/courses/java-fundamentals-language/table-of-contents)
+By:Ashley R Smith At:Mar 01 2019 04:54:58PM
+
+[How to use a Java HashMap – Nhu Nguyen – Medium](https://medium.com/@nhu313/how-to-use-a-java-hashmap-2df489f482aa)
+By:Nhu Nguyen At:Feb 27 2019 11:23:54AM
+
+[Java 6 Exceptions - YouTube](https://www.youtube.com/watch?v=i59ZamvhmaU)
+By:Nhu Nguyen At:Mar 01 2019 09:33:10AM
+
+[Zip Code Lecture: Introduction to Exceptions, Assertions, and Logging](https://nhu313.github.io/reveal-slides/intro-to-exceptions-assertions-logging.html#/1)
+By:Nhu Nguyen At:Mar 01 2019 01:06:13PM
+
+[Page not found · GitHub · GitHub](https://github.com/lthomas4912/SDubs.HiLowGame)
+By:Leah Thomas At:Apr 12 2019 02:25:27PM
+

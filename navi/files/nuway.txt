@@ -1,0 +1,14 @@
+# nuway 
+
+[('https://git.zipcode.rocks/Cohort4.2/CR-MesoLabs-Beans.LearnerLab', '1544828064.008000', 'U983BKPT3')](https://git.zipcode.rocks/Cohort4.2/CR-MesoLabs-Beans.LearnerLab)
+By:Nhu Nguyen At:Dec 14 2018 05:54:24PM
+
+[('https://git.zipcode.rocks/Cohort4.2/SpringQuickPoll', '1544828075.008300', 'U983BKPT3')](https://git.zipcode.rocks/Cohort4.2/SpringQuickPoll)
+By:Nhu Nguyen At:Dec 14 2018 05:54:35PM
+
+[('https://git.zipcode.rocks/Cohort4.2/CR-MicroLabs-Composition-PhoneBook', '1544828112.008600', 'U983BKPT3')](https://git.zipcode.rocks/Cohort4.2/CR-MicroLabs-Composition-PhoneBook)
+By:Nhu Nguyen At:Dec 14 2018 05:55:12PM
+
+[How to use a Java HashMap – Nhu Nguyen – Medium](https://medium.com/@nhu313/how-to-use-a-java-hashmap-2df489f482aa)
+By:Nhu Nguyen At:Dec 14 2018 05:56:34PM
+
