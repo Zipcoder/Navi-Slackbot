@@ -1,3 +1,4 @@
+import os
 import time
 import event
 from slackclient import SlackClient
@@ -5,8 +6,8 @@ from slackclient import SlackClient
 
 class Bot(object):
     def __init__(self):
-        self.slack_client = SlackClient("xoxb-*****************")
-        self.bot_name = "jamiestest"
+        self.slack_client = SlackClient(os.environ["SLACK_API_TOKEN"])
+        self.bot_name = "navi"
         self.bot_id = self.get_bot_id()
 
         if self.bot_id is None:
@@ -23,16 +24,16 @@ class Bot(object):
             for user in users:
                 if 'name' in user and user.get('name') == self.bot_name:
                     return "<@" + user.get('id') + ">"
-
             return None
 
     def listen(self):
-        if self.slack_client.rtm_connect(with_team_state=False):
-            print
-            "Successfully connected, listening for commands"
+        if self.slack_client.rtm_connect():
+            print("Successfully connected, listening for events")
             while True:
                 self.event.wait_for_event()
-
+                # read = self.slack_client.rtm_read()
+                # if len(read) > 0:
+                #     print(read)
                 time.sleep(1)
         else:
-            exit("Error, Connection Failed")
+            print(self.slack_client.api_call('rtm.connect'))
