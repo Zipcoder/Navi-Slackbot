@@ -1,14 +1,20 @@
+from history import get_history, get_link_to_links
+
+
 class Command(object):
     def __init__(self):
+        self.channel = None
         self.commands = {
+            "has joined the group": self.history,
+            "history": self.history,
+            "links": self.links,
             "hey": self.hey,
-            "who let the dogs out?": self.dogs,
-            "reese": self.reese,
             "help": self.help
         }
 
-    def handle_command(self, user, command):
-        response = "<@" + user + ">: "
+    def handle_command(self, command, channel):
+        self.channel = channel
+        response = ""
 
         if command in self.commands:
             response += self.commands[command]()
@@ -17,19 +23,20 @@ class Command(object):
 
         return response
 
-    def dogs(self):
-        return "Who, who, who, who, who"
-
     def hey(self):
         return "listen!"
 
-    def reese(self):
-        return "Oh Reese? Yeah, she's the coolest! Much cooler than my other creator *eyeroll*"
+    def history(self):
+        get_history(self.channel)
+        return "Collecting channel's history"
+
+    def links(self):
+        return get_link_to_links(self.channel)
 
     def help(self):
         response = "Currently I support the following commands:\r\n"
 
-        for command in self.commands:
+        for command in self.commands[1:]:
             response += command + "\r\n"
-
+        response += "Please see my GitHub for further details: <https://github.com/ElBell/Navi-Slackbot/tree/master>"
         return response

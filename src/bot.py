@@ -6,7 +6,7 @@ from slackclient import SlackClient
 
 class Bot(object):
     def __init__(self):
-        self.slack_client = SlackClient(os.environ["SLACK_API_TOKEN"])
+        self.slack_client = SlackClient(os.environ["BOT_SLACK_API_TOKEN"])
         self.bot_name = "navi"
         self.bot_id = self.get_bot_id()
 
