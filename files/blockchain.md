@@ -1,0 +1,5 @@
+# blockchain
+## GitHub<br/>
+[GitHub - ElBell/BlockchainKickstarter](https://github.com/ElBell/BlockchainKickstarter)<br/>By: Eleonor Bart Posted: Mar 24 2019 02:13:39PM<br/>
+## Misc<br/>
+[What is BLOCKCHAIN? The best explanation of blockchain technology - YouTube](https://www.youtube.com/watch?v=3xGLc-zz9cA)<br/>By: Sean Rowan Posted: Mar 18 2019 02:10:46PM<br/>[Blockchain Demo](https://anders.com/blockchain/hash.html)<br/>By: Eleonor Bart Posted: Mar 21 2019 07:48:45AM<br/>[Blockchain Explorer - Search the Blockchain | BTC | ETH | BCH](https://www.blockchain.com/explorer)<br/>By: Sean Rowan Posted: Mar 24 2019 01:58:40PM<br/>[Rinkeby Accounts, Addresses and Contracts](https://rinkeby.etherscan.io/address/0x1729CB0ed72C1725Be864F4b7cff5C980bd570A4)<br/>By: Eleonor Bart Posted: Mar 24 2019 02:12:47PM<br/>[Remix - Solidity IDE](http://remix.ethereum.org/#optimize=false&amp;version=soljson-v0.5.6+commit.b259423e.js)<br/>By: Eleonor Bart Posted: Mar 24 2019 02:13:08PM<br/>
