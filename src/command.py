@@ -28,7 +28,7 @@ class Command(object):
 
     def history(self):
         get_history(self.channel)
-        return "Collecting channel's history"
+        return "I've collected the channel's history:\n" + self.links()
 
     def links(self):
         return get_link_to_links(self.channel)
@@ -38,5 +38,5 @@ class Command(object):
 
         for command in self.commands[1:]:
             response += command + "\r\n"
-        response += "Please see my GitHub for further details: <https://github.com/ElBell/Navi-Slackbot/tree/master>"
+        response += "Please see my GitHub for further details:\n <https://github.com/ElBell/Navi-Slackbot/tree/master>"
         return response

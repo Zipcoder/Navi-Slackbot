@@ -45,10 +45,14 @@ def get_messages(channel_id):
 
 # get links from message text
 def parse_message(message, links):
-    if len(message['text']) > 0 and '<' in message['text']:
-        potential_link = message['text'][message['text'].index('<') + 1:message['text'].index('>')]
-        if potential_link[0] != '@' and potential_link[0] != '!':
-            links.add((potential_link, message['ts'], message['user']))
+    if is_link(message):
+        link = message['text'][message['text'].index('<') + 1:message['text'].index('>')]
+        links.add((link, message['ts'], message['user']))
+
+
+def is_link(message):
+    if len(message['text']) > 0 and '<' in message['text'] and  message['text'][message['text'].index('<')+1] == 'h':
+        return True
 
 
 # get links from attachments
@@ -70,14 +74,15 @@ def get_links(raw_messages):
 
 
 # Getting the possible title from the link using Beautiful Soup
-def generate_link_md(link):
+def generate_link_md(link, users):
     try:
         title = BeautifulSoup(requests.get(link[0]).text, 'lxml').title.string
         if "site not found" in title:
             title = link[0]
     except:
         title = link[0]
-    users = get_users()
+    title = re.sub(r"[\n\t]*", "", title).strip()
+    print(title.strip())
     return f"[{title.strip()}]({link[0]})<br/>By: {users[link[2]]} " \
         f"Posted: {datetime.fromtimestamp(float(link[1])).strftime('%b %d %Y %I:%M:%S%p')}<br/>"
 
@@ -91,17 +96,18 @@ def get_insertion_index(link, md_file):
 
 
 def generate_md_file(links, channel_name):
+    users = get_users()
     md_file = [f"# {channel_name}"]
     for section in sections.keys():
         md_file.append(f"\n## {section}<br/>\n")
     md_file.append("\n## Misc<br/>\n")
     for link in links:
-        md_file.insert(get_insertion_index(link, md_file), generate_link_md(link))
+        md_file.insert(get_insertion_index(link, md_file), generate_link_md(link, users))
     return ''.join(md_file)
 
 
 def generate_file(channel_id):
-    links = get_links(get_messages(channel_id))
+    links = [link for link in get_links(get_messages(channel_id))  if "Navi" not in link[0]]
     channel_name = get_channel_name(channel_id)
     links.sort(key=lambda link: link[1], reverse=True)
     file_string = generate_md_file(links, channel_name)
@@ -114,7 +120,6 @@ def generate_file(channel_id):
 def get_history(channel_id):
     repo = Repo('/Users/eleonorbart/Projects/Python/Navi')
     commit_message = 'committing links'
-    print([generate_file(channel_id)])
     repo.index.add([generate_file(channel_id)])
     repo.index.commit(commit_message)
     origin = repo.remote('origin')
@@ -122,7 +127,7 @@ def get_history(channel_id):
 
 
 def get_link_to_links(channel_id):
-    return f"https://github.com/ElBell/Navi-Slackbot/files/{get_channel_name(channel_id)}.md"
+    return f"https://github.com/ElBell/Navi-Slackbot/blob/master/files/{get_channel_name(channel_id)}.md"
 
 
 def get_channel_name(channel_id):

@@ -1,5 +1,0 @@
-# testingbot
-## GitHub<br/>
-[GitHub - ElBell/FullStack.MicroWebApplication-Client](https://github.com/ElBell/FullStack.MicroWebApplication-Client)<br/>By: Eleonor Bart Posted: Apr 24 2019 04:25:31PM<br/>
-## Misc<br/>
-[https://i.redd.it/x0n6y7pzf3yy.jpg](https://i.redd.it/x0n6y7pzf3yy.jpg)<br/>By: Eleonor Bart Posted: Apr 24 2019 03:33:07PM<br/>[https://comicvine.gamespot.com/navi/4005-77232/](https://comicvine.gamespot.com/navi/4005-77232/)<br/>By: Eleonor Bart Posted: Apr 24 2019 04:23:48PM<br/>[hmysql://localhost:3306/Blog?useUnicode=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC](hmysql://localhost:3306/Blog?useUnicode=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC)<br/>By: Eleonor Bart Posted: Apr 24 2019 04:43:15PM<br/>
