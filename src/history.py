@@ -108,14 +108,14 @@ def generate_file(channel_id):
     file = open(f"../files/{channel_name}.md", "w+")
     file.write(file_string)
     file.close()
-    return file.name
+    return f"files/{channel_name}.md"
 
 
 def get_history(channel_id):
     repo = Repo('/Users/eleonorbart/Projects/Python/Navi')
     commit_message = 'committing links'
     print([generate_file(channel_id)])
-    repo.index.add(generate_file(channel_id))
+    repo.index.add([generate_file(channel_id)])
     repo.index.commit(commit_message)
     origin = repo.remote('origin')
     origin.push()
