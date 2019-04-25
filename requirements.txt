@@ -4,5 +4,3 @@ beautifulsoup4
 lxml
 datetime
 gitpython
-
-APScheduler==3.0.0
