@@ -223,7 +223,7 @@ def parse_link_or_attachment(message: str) -> List[Link]:
 
 def add_link(message, channel_id):
     links: List[Link] = parse_link_or_attachment(message)
-    with open(f"files/json/{channel_id}.json") as file_read:
+    with open(f"/app/src/files/json/{channel_id}.json") as file_read:
         json_data = json.load(file_read)
     sectioned_links = {category: [Link.from_json(link) for link in links] for category, links in json_data.items()}
     add_to_section(links, sectioned_links)
