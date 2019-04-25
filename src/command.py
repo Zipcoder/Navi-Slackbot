@@ -1,4 +1,4 @@
-from history import get_history, get_link_to_links
+from history import get_history, get_link_to_links, get_channel_name
 
 
 class Command(object):
@@ -9,14 +9,12 @@ class Command(object):
             "history": self.history,
             "links": self.links,
             "hey": self.hey,
-            "what's the weather like": self.weather,
             "help": self.help
         }
 
     def handle_command(self, command, channel):
         self.channel = channel
         response = ""
-
         if command in self.commands:
             response += self.commands[command]()
         else:
@@ -29,13 +27,11 @@ class Command(object):
 
     def history(self):
         get_history(self.channel)
-        return "I've collected the channel's history:\n"+ self.links()
+        return "I retrieved all the links from " + get_channel_name(self.channel) + ":\n"\
+               + get_link_to_links(self.channel)
 
     def links(self):
         return get_link_to_links(self.channel)
-
-    def weather(self):
-        return "The weather is, um, you know, Brilliant!"
 
     def help(self):
         response = "Currently I support the following commands:\r\n"

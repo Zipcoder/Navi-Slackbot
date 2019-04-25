@@ -9,23 +9,21 @@ class Event:
 
     def wait_for_event(self):
         events = self.bot.slack_client.rtm_read()
-
         if events and len(events) > 0:
             for event in events:
                 # print event
                 self.parse_event(event)
 
     def parse_event(self, event):
-        print(event)
         if event and 'text' in event:
             if self.bot.bot_id in event['text']:
                 self.handle_event(event['user'], event['text'].split(self.bot.bot_id)[1].strip().lower(), event['channel'])
-            if link_or_attachment(event['text']):
-                add_link(event['text'], event['channel'])
+            if link_or_attachment(event['text']) and self.bot.bot_id not in event:
+                add_link(event, event['channel'])
 
     def handle_event(self, user, command, channel):
         if command and channel:
             print("Received command: " + command + " in channel: " + channel + " from user: " + user)
             response = self.command.handle_command(command, channel)
             self.bot.slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True,
-                                           unfurl_links=False)
+                                           unfurl_links=False, unfurl_media=False)

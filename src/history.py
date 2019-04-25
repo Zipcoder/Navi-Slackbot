@@ -2,7 +2,6 @@ import os
 import re
 import time
 import json
-import urllib.request
 from datetime import datetime
 from typing import List, Dict, Set, Iterator
 
@@ -11,7 +10,8 @@ from bs4 import BeautifulSoup
 from git import Repo
 from slackclient import SlackClient
 
-sections = {"git": "GitHub", "stackoverflow": "StackOverflow", "java": "Java", "interview": "Interview", "": "Misc"}
+sections = {"git": "GitHub", "stackoverflow": "StackOverflow", "java": "Java", "python": "Python",
+            "interview": "Interview", "": "Misc"}
 ignored_titles: List[str] = ["not found", "forbidden", "denied"]
 
 slack_token: str = os.environ["OAUTH_ACCESS_TOKEN"]
@@ -33,6 +33,21 @@ class Link:
 
     def __eq__(self, other):
         return isinstance(self, type(other)) and self.__key() == other.__key()
+
+    def to_json(self):
+        return {
+            'url': self.url,
+            'creator': self.creator,
+            'timestamp': self.timestamp,
+            'reaction_count': self.reaction_count
+        }
+
+    @classmethod
+    def from_json(cls, data):
+        return cls(data['url'],
+                   data['creator'],
+                   data['timestamp'],
+                   data['reaction_count'])
 
 
 # Get users for mapping onto their ids
@@ -70,11 +85,11 @@ def parse_message(message):
     message_text = message['text']
     if is_link(message_text):
         url = message_text[message_text.index('<') + 1:message_text.index('>')]
-        return Link(url, message['user'], message['ts'], get_reaction_count(message))
+        return [Link(url, message['user'], message['ts'], get_reaction_count(message))]
 
 
 def is_link(text):
-    if len(text) > 0 and '<' in text and text[text.index('<')+1] == 'h':
+    if len(text) > 0 and '<' in text and text[text.index('<') + 1] == 'h':
         return True
     return False
 
@@ -92,19 +107,25 @@ def parse_attachments(message):
     attachment_links = []
     for attachment in message['attachments']:
         if 'original_url' in attachment:
-            attachment_links.append(Link(attachment['original_url'], message['user'], message['ts'], get_reaction_count(message)))
+            attachment_links.append(
+                Link(attachment['original_url'], message['user'], message['ts'], get_reaction_count(message)))
         if 'app_unfurl_url' in attachment:
-            attachment_links.append(Link(attachment['app_unfurl_url'], message['user'], message['ts'], get_reaction_count(message)))
+            attachment_links.append(
+                Link(attachment['app_unfurl_url'], message['user'], message['ts'], get_reaction_count(message)))
     return attachment_links
 
 
 def sort_into_sections(links_set: Iterator[Link]):
     sectioned_links = {sections[section]: [] for section in sections.keys()}
     for link in links_set:
-        for key, title in sections.items():
-            if key in link.url:
-                sectioned_links[title].append(link)
+        sectioned_links[get_section(link)].append(link)
     return sectioned_links
+
+
+def get_section(link):
+    for key, title in sections.items():
+        if key in link.url:
+            return title
 
 
 def link_or_attachment(raw_message):
@@ -116,11 +137,10 @@ def link_or_attachment(raw_message):
 def get_links(raw_messages):
     links_set: Set[Link] = set()
     for message in [raw_message for raw_message in raw_messages if 'navi' not in str(raw_message).lower()]:
-        if 'attachments' in message:
-            links_set.update(parse_attachments(message))
-        elif 'text' in message:
-            links_set.add(parse_message(message))
-    return sort_into_sections(filter(None, links_set))
+        links: List[Link] = parse_link_or_attachment(message)
+        if links is not None:
+            links_set.update(links)
+    return sort_into_sections(links_set)
 
 
 # Getting the possible title from the link using Beautiful Soup
@@ -137,15 +157,17 @@ def generate_link_md(link: Link, users):
 
 
 def generate_md_file(channel_id, channel_name):
-    with open(f"../files/json/{channel_id}.json", "r") as read_file:
-        sectioned_links = json.load(read_file)
+    with open(f"../files/json/{channel_id}.json") as file_read:
+        json_data = json.load(file_read)
+    sectioned_links = {category: [Link.from_json(link) for link in links] for category, links in json_data.items()}
     users = get_users()
     md_file = [f"# {channel_name}"]
     for title, links in sectioned_links.items():
-        md_file.append(f"\n## {title}<br/>\n")
-        links.sort(key=lambda x: x.timestamp)
-        for link in links:
-            md_file.append(generate_link_md(link, users))
+        if len(links) > 0:
+            md_file.append(f"\n## {title}<br/>\n")
+            links.sort(key=lambda x: x.timestamp)
+            for link in links:
+                md_file.append(generate_link_md(link, users))
     return ''.join(md_file)
 
 
@@ -160,13 +182,15 @@ def generate_file(channel_id):
 
 def original_json(channel_id):
     sectioned_links = get_links(get_messages(channel_id))
-    with open(f"../files/json/{channel_id}.json", "w") as write_file:
-        json.dump(sectioned_links, write_file)
+    json_data = {category: [link.to_json() for link in links]
+                 for category, links in sectioned_links.items()}
+    with open(f"../files/json/{channel_id}.json", 'w') as write_file:
+        json.dump(json_data, write_file)
     return f"files/json/{channel_id}.json"
 
 
 def get_history(channel_id):
-    push_to_git([generate_file(channel_id), original_json(channel_id)])
+    push_to_git([original_json(channel_id), generate_file(channel_id)])
 
 
 def push_to_git(file_list):
@@ -189,7 +213,7 @@ def get_channel_name(channel_id):
         return slack_client.api_call("groups.info", channel=channel_id)["group"]["name"]
 
 
-def parse_link_or_attachment(message):
+def parse_link_or_attachment(message: str) -> List[Link]:
     if 'attachments' in message:
         return parse_attachments(message)
     elif 'text' in message:
@@ -197,16 +221,21 @@ def parse_link_or_attachment(message):
 
 
 def add_link(message, channel_id):
-    message = parse_link_or_attachment(message)
-    with open(f"../files/json/{channel_id}.json", "r") as file:
-        sectioned_links = add_to_section(message, json.load(file))
-    with open(f"../files/json/{channel_id}.json", "w") as file:
-        json.dump(add_to_section(message, sectioned_links), file)
+    links: List[Link] = parse_link_or_attachment(message)
+    with open(f"../files/json/{channel_id}.json") as file_read:
+        json_data = json.load(file_read)
+    sectioned_links = {category: [Link.from_json(link) for link in links] for category, links in json_data.items()}
+    add_to_section(links, sectioned_links)
+    json_data = {category: [link.to_json() for link in links]
+                 for category, links in sectioned_links.items()}
+    with open(f"../files/json/{channel_id}.json", 'w') as write_file:
+        json.dump(json_data, write_file)
     push_to_git([generate_file(channel_id), f"files/json/{channel_id}.json"])
 
 
-def add_to_section(link, sectioned_links):
-    for key, title in sections.items():
-        if key in link.url:
-            sectioned_links[title].append(link)
+def add_to_section(links, sectioned_links):
+    for link in links:
+        for key, title in sections.items():
+            if key in link.url:
+                sectioned_links[title].append(link)
     return sectioned_links
