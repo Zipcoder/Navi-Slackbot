@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from git import Repo
 from slackclient import SlackClient
 
-sections = {"github": "GitHub", "stackoverflow": "StackOverflow", "java": "Java", "interview": "Interview", "": "Misc"}
+sections = {"git": "GitHub", "stackoverflow": "StackOverflow", "java": "Java", "interview": "Interview", "": "Misc"}
 ignored_titles: List[str] = ["not found", "forbidden", "denied"]
 
 slack_token: str = os.environ["OAUTH_ACCESS_TOKEN"]
@@ -133,6 +133,7 @@ def generate_md_file(sectioned_links, channel_name):
     md_file = [f"# {channel_name}"]
     for title, links in sectioned_links.items():
         md_file.append(f"\n## {title}<br/>\n")
+        links.sort(key=lambda x: x.timestamp)
         for link in links:
             md_file.append(generate_link_md(link, users))
     return ''.join(md_file)
