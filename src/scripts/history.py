@@ -157,7 +157,7 @@ def generate_link_md(link: Link, users):
 
 
 def generate_md_file(channel_id, channel_name):
-    with open(f"../files/json/{channel_id}.json") as file_read:
+    with open(f"files/json/{channel_id}.json") as file_read:
         json_data = json.load(file_read)
     sectioned_links = {category: [Link.from_json(link) for link in links] for category, links in json_data.items()}
     users = get_users()
@@ -174,7 +174,7 @@ def generate_md_file(channel_id, channel_name):
 def generate_file(channel_id):
     channel_name = get_channel_name(channel_id)
     file_string = generate_md_file(channel_id, channel_name)
-    file = open(f"../files/{channel_name}.md", "w+")
+    file = open(f"files/{channel_name}.md", "w+")
     file.write(file_string)
     file.close()
     return f"files/{channel_name}.md"
@@ -184,7 +184,8 @@ def original_json(channel_id):
     sectioned_links = get_links(get_messages(channel_id))
     json_data = {category: [link.to_json() for link in links]
                  for category, links in sectioned_links.items()}
-    with open(f"../files/json/{channel_id}.json", 'w') as write_file:
+
+    with open(f"files/json/{channel_id}.json", 'w') as write_file:
         json.dump(json_data, write_file)
     return f"files/json/{channel_id}.json"
 
@@ -203,7 +204,7 @@ def push_to_git(file_list):
 
 
 def get_link_to_links(channel_id):
-    return f"https://github.com/ElBell/Navi-Slackbot/blob/master/files/{get_channel_name(channel_id)}.md"
+    return f"https://github.com/ElBell/Navi-Slackbot/blob/master/src/files/{get_channel_name(channel_id)}.md"
 
 
 def get_channel_name(channel_id):
@@ -222,13 +223,13 @@ def parse_link_or_attachment(message: str) -> List[Link]:
 
 def add_link(message, channel_id):
     links: List[Link] = parse_link_or_attachment(message)
-    with open(f"../files/json/{channel_id}.json") as file_read:
+    with open(f"files/json/{channel_id}.json") as file_read:
         json_data = json.load(file_read)
     sectioned_links = {category: [Link.from_json(link) for link in links] for category, links in json_data.items()}
     add_to_section(links, sectioned_links)
     json_data = {category: [link.to_json() for link in links]
                  for category, links in sectioned_links.items()}
-    with open(f"../files/json/{channel_id}.json", 'w') as write_file:
+    with open(f"files/json/{channel_id}.json", 'w') as write_file:
         json.dump(json_data, write_file)
     push_to_git([generate_file(channel_id), f"files/json/{channel_id}.json"])
 
