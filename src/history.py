@@ -3,14 +3,35 @@ import re
 import time
 import urllib.request
 from datetime import datetime
+from typing import List, Dict, Set, Iterator
+
 import requests
 from bs4 import BeautifulSoup
 from git import Repo
 from slackclient import SlackClient
 
-sections = {"GitHub": "github"}
-slack_token = os.environ["OAUTH_ACCESS_TOKEN"]
-slack_client = SlackClient(slack_token)
+sections = {"github": "GitHub", "stackoverflow": "StackOverflow", "java": "Java", "interview": "Interview", "": "Misc"}
+ignored_titles: List[str] = ["not found", "forbidden", "denied"]
+
+slack_token: str = os.environ["OAUTH_ACCESS_TOKEN"]
+slack_client: SlackClient = SlackClient(slack_token)
+
+
+class Link:
+    def __init__(self, url, creator, timestamp, reaction_count):
+        self.url = url
+        self.creator = creator
+        self.timestamp = timestamp
+        self.reaction_count = reaction_count
+
+    def __key(self):
+        return self.url, self.creator, self.timestamp
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        return isinstance(self, type(other)) and self.__key() == other.__key()
 
 
 # Get users for mapping onto their ids
@@ -30,7 +51,7 @@ def get_messages(channel_id):
     latest = datetime.now().timestamp()
     call = "channels.history" if channel_id[0] == "C" else "groups.history"
     while has_more:
-        current = slack_client.api_call(call, channel=channel_id, latest=latest)
+        current = slack_client.api_call(call, channel=channel_id, latest=latest, count=1000)
         if not current['ok'] and current['error'] == 'ratelimited':
             time.sleep(int(current['headers']['Retry-After']))
         else:
@@ -43,74 +64,84 @@ def get_messages(channel_id):
     return all_messages
 
 
-# get links from message text
-def parse_message(message, links):
+# get link from message text
+def parse_message(message):
     if is_link(message):
-        link = message['text'][message['text'].index('<') + 1:message['text'].index('>')]
-        links.add((link, message['ts'], message['user']))
+        url = message['text'][message['text'].index('<') + 1:message['text'].index('>')]
+        return Link(url, message['user'], message['ts'], get_reaction_count(message))
 
 
 def is_link(message):
-    if len(message['text']) > 0 and '<' in message['text'] and  message['text'][message['text'].index('<')+1] == 'h':
+    text = message['text']
+    if len(text) > 0 and '<' in text and text[text.index('<')+1] == 'h':
         return True
 
 
+def get_reaction_count(message):
+    count = 0
+    if "reactions" not in message:
+        return count
+    for reaction in message["reactions"]:
+        count += reaction["count"]
+
+
 # get links from attachments
-def parse_attachment(attachment, message, links):
-    if 'original_url' in attachment:
-        links.add((attachment['original_url'], message['ts'], message['user']))
-    if 'app_unfurl_url' in attachment:
-        links.add((attachment['app_unfurl_url'], message['ts'], message['user']))
+def parse_attachments(message):
+    attachment_links = []
+    for attachment in message['attachments']:
+        if 'original_url' in attachment:
+            attachment_links.append(Link(attachment['original_url'], message['user'], message['ts'], get_reaction_count(message)))
+        if 'app_unfurl_url' in attachment:
+            attachment_links.append(Link(attachment['app_unfurl_url'], message['user'], message['ts'], get_reaction_count(message)))
+    return attachment_links
+
+
+def sort_into_sections(links_set: Iterator[Link]):
+    sectioned_links = {sections[section]: [] for section in sections.keys()}
+    for link in links_set:
+        for key, title in sections.items():
+            if key in link.url:
+                sectioned_links[title].append(link)
+    return sectioned_links
 
 
 def get_links(raw_messages):
-    links_set = set()
-    for message in raw_messages:
-        parse_message(message, links_set)
+    links_set: Set[Link] = set()
+    for message in [raw_message for raw_message in raw_messages if 'navi' not in str(raw_message).lower()]:
         if 'attachments' in message:
-            for attachment in message['attachments']:
-                parse_attachment(attachment, message, links_set)
-    return list(links_set)
+            links_set.update(parse_attachments(message))
+        else:
+            links_set.add(parse_message(message))
+    return sort_into_sections(filter(None, links_set))
 
 
 # Getting the possible title from the link using Beautiful Soup
-def generate_link_md(link, users):
+def generate_link_md(link: Link, users):
     try:
-        title = BeautifulSoup(requests.get(link[0]).text, 'lxml').title.string
-        if "site not found" in title:
-            title = link[0]
+        title = BeautifulSoup(requests.get(link.url).text, 'lxml').title.string
+        if any(word in title.lower() for word in ignored_titles):
+            title = link.url
     except:
-        title = link[0]
+        title = link.url
     title = re.sub(r"[\n\t]*", "", title).strip()
-    print(title.strip())
-    return f"[{title.strip()}]({link[0]})<br/>By: {users[link[2]]} " \
-        f"Posted: {datetime.fromtimestamp(float(link[1])).strftime('%b %d %Y %I:%M:%S%p')}<br/>"
+    return f"[{title.strip()}]({link.url})<br/>By: {users[link.creator]} " \
+        f"Posted: {datetime.fromtimestamp(float(link.timestamp)).strftime('%b %d %Y %I:%M:%S%p')} <br/> "
 
 
-# Figure out where to put file link based on section
-def get_insertion_index(link, md_file):
-    for section in sections.keys():
-        if sections[section] in link[0].lower():
-            return md_file.index(f"\n## {section}<br/>\n") + 1
-    return md_file.index(f"\n## Misc<br/>\n") + 1
-
-
-def generate_md_file(links, channel_name):
+def generate_md_file(sectioned_links, channel_name):
     users = get_users()
     md_file = [f"# {channel_name}"]
-    for section in sections.keys():
-        md_file.append(f"\n## {section}<br/>\n")
-    md_file.append("\n## Misc<br/>\n")
-    for link in links:
-        md_file.insert(get_insertion_index(link, md_file), generate_link_md(link, users))
+    for title, links in sectioned_links.items():
+        md_file.append(f"\n## {title}<br/>\n")
+        for link in links:
+            md_file.append(generate_link_md(link, users))
     return ''.join(md_file)
 
 
 def generate_file(channel_id):
-    links = [link for link in get_links(get_messages(channel_id))  if "Navi" not in link[0]]
+    sectioned_links = get_links(get_messages(channel_id))
     channel_name = get_channel_name(channel_id)
-    links.sort(key=lambda link: link[1], reverse=True)
-    file_string = generate_md_file(links, channel_name)
+    file_string = generate_md_file(sectioned_links, channel_name)
     file = open(f"../files/{channel_name}.md", "w+")
     file.write(file_string)
     file.close()

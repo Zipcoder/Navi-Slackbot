@@ -36,7 +36,7 @@ class Command(object):
     def help(self):
         response = "Currently I support the following commands:\r\n"
 
-        for command in self.commands[1:]:
+        for command in self.commands:
             response += command + "\r\n"
         response += "Please see my GitHub for further details:\n <https://github.com/ElBell/Navi-Slackbot/tree/master>"
         return response
