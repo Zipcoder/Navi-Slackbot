@@ -1,0 +1,2 @@
+import bot
+bot.Bot()
