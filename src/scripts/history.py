@@ -181,8 +181,8 @@ def generate_file(channel_id):
 
 
 def original_json(channel_id):
-    os.listdir
-    os.listdir()
+    print(os.getcwd())
+    print(os.path.dirname(os.path.realpath(__file__)))
     sectioned_links = get_links(get_messages(channel_id))
     json_data = {category: [link.to_json() for link in links]
                  for category, links in sectioned_links.items()}
