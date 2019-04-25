@@ -177,7 +177,7 @@ def generate_file(channel_id):
     file = open(f"files/{channel_name}.md", "w+")
     file.write(file_string)
     file.close()
-    return f"files/{channel_name}.md"
+    return f"src/files/{channel_name}.md"
 
 
 def original_json(channel_id):
@@ -187,7 +187,7 @@ def original_json(channel_id):
 
     with open(f"files/json/{channel_id}.json", 'w') as write_file:
         json.dump(json_data, write_file)
-    return f"files/json/{channel_id}.json"
+    return f"src/files/json/{channel_id}.json"
 
 
 def get_history(channel_id):
@@ -231,7 +231,7 @@ def add_link(message, channel_id):
                  for category, links in sectioned_links.items()}
     with open(f"files/json/{channel_id}.json", 'w') as write_file:
         json.dump(json_data, write_file)
-    push_to_git([generate_file(channel_id), f"files/json/{channel_id}.json"])
+    push_to_git([generate_file(channel_id), f"src/files/json/{channel_id}.json"])
 
 
 def add_to_section(links, sectioned_links):
