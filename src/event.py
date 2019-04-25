@@ -18,7 +18,7 @@ class Event:
         if event and 'text' in event:
             if self.bot.bot_id in event['text']:
                 self.handle_event(event['user'], event['text'].split(self.bot.bot_id)[1].strip().lower(), event['channel'])
-            if link_or_attachment(event['text']) and self.bot.bot_id not in event:
+            if self.bot.bot_id not in event and link_or_attachment(event['text']):
                 add_link(event, event['channel'])
 
     def handle_event(self, user, command, channel):
