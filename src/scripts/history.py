@@ -181,8 +181,6 @@ def generate_file(channel_id):
 
 
 def original_json(channel_id):
-    print(os.getcwd())
-    print(os.path.dirname(os.path.realpath(__file__)))
     sectioned_links = get_links(get_messages(channel_id))
     json_data = {category: [link.to_json() for link in links]
                  for category, links in sectioned_links.items()}
@@ -197,7 +195,7 @@ def get_history(channel_id):
 
 
 def push_to_git(file_list):
-    repo = Repo('../')
+    repo = Repo('/Users/eleonorbart/Projects/Python/Navi')
     commit_message = 'committing links'
     repo.index.add(file_list)
     repo.index.commit(commit_message)
