@@ -31,9 +31,6 @@ class Bot(object):
             print("Successfully connected, listening for events")
             while True:
                 self.event.wait_for_event()
-                # read = self.slack_client.rtm_read()
-                # if len(read) > 0:
-                #     print(read)
                 time.sleep(1)
         else:
             print(self.slack_client.api_call('rtm.connect'))

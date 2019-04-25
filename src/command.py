@@ -9,6 +9,7 @@ class Command(object):
             "history": self.history,
             "links": self.links,
             "hey": self.hey,
+            "what's the weather like": self.weather,
             "help": self.help
         }
 
@@ -33,10 +34,13 @@ class Command(object):
     def links(self):
         return get_link_to_links(self.channel)
 
+    def weather(self):
+        return "The weather is, um, you know, Brilliant!"
+
     def help(self):
         response = "Currently I support the following commands:\r\n"
 
         for command in self.commands:
             response += command + "\r\n"
-        response += "Please see my GitHub for further details:\n <https://github.com/ElBell/Navi-Slackbot/tree/master>"
+        response += "Please see my GitHub for further details:\n https://github.com/ElBell/Navi-Slackbot/tree/master"
         return response
