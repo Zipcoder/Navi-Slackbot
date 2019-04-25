@@ -191,16 +191,16 @@ def original_json(channel_id):
 
 
 def get_history(channel_id):
-    push_to_git([original_json(channel_id), generate_file(channel_id)])
+    original_json(channel_id)
+    generate_file(channel_id)
 
-
-def push_to_git(file_list):
-    repo = Repo('/app/Navi-Slackbot')
-    commit_message = 'committing links'
-    repo.index.add(file_list)
-    repo.index.commit(commit_message)
-    origin = repo.remote('origin')
-    origin.push()
+# def push_to_git(file_list):
+#     repo = Repo('/app/Navi-Slackbot')
+#     commit_message = 'committing links'
+#     repo.index.add(file_list)
+#     repo.index.commit(commit_message)
+#     origin = repo.remote('origin')
+#     origin.push()
 
 
 def get_link_to_links(channel_id):
@@ -231,7 +231,7 @@ def add_link(message, channel_id):
                  for category, links in sectioned_links.items()}
     with open(f"/app/src/files/json/{channel_id}.json", 'w') as write_file:
         json.dump(json_data, write_file)
-    push_to_git([generate_file(channel_id), f"src/files/json/{channel_id}.json"])
+    generate_file(channel_id), f"src/files/json/{channel_id}.json"
 
 
 def add_to_section(links, sectioned_links):
