@@ -4,5 +4,3 @@ beautifulsoup4
 lxml
 datetime
 gitpython
-
-//heroku run python src/scripts/task.py
