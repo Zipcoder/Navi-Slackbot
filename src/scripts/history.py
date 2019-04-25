@@ -187,7 +187,7 @@ def original_json(channel_id):
     json_data = {category: [link.to_json() for link in links]
                  for category, links in sectioned_links.items()}
 
-    with open(f"~/src/files/json/{channel_id}.json", 'w') as write_file:
+    with open(f"/app/src/files/json/{channel_id}.json", 'w') as write_file:
         json.dump(json_data, write_file)
     return f"src/files/json/{channel_id}.json"
 
