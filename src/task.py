@@ -1,3 +1,2 @@
 import bot
-
 bot.Bot()
