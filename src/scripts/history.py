@@ -195,7 +195,7 @@ def get_history(channel_id):
 
 
 def push_to_git(file_list):
-    repo = Repo('/app')
+    repo = Repo('/app/Navi-Slackbot')
     commit_message = 'committing links'
     repo.index.add(file_list)
     repo.index.commit(commit_message)
