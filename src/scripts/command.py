@@ -1,4 +1,4 @@
-from history import get_history, get_link_to_links, get_channel_name
+from scripts.history import get_history, get_link_to_links, get_channel_name
 
 
 class Command(object):

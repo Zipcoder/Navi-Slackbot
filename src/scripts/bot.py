@@ -1,6 +1,6 @@
 import os
 import time
-import event
+from scripts import event
 from slackclient import SlackClient
 
 

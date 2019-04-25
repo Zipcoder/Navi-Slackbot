@@ -1,5 +1,5 @@
-from command import Command
-from history import link_or_attachment, add_link
+from scripts.command import Command
+from scripts.history import link_or_attachment, add_link
 
 
 class Event:
