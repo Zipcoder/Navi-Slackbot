@@ -6,7 +6,6 @@ class Command(object):
         self.channel = None
         self.commands = {
             "has joined the group": self.history,
-            "history": self.history,
             "links": self.links,
             "hey": self.hey,
             "help": self.help
