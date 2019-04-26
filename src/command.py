@@ -6,6 +6,7 @@ class Command(object):
         self.channel = None
         self.commands = {
             "has joined the group": self.history,
+            "has joined the channel": self.history,
             "links": self.links,
             "hey": self.hey,
             "help": self.help
@@ -35,7 +36,7 @@ class Command(object):
     def help(self):
         response = "Currently I support the following commands:\r\n"
         for command in self.commands:
-            if "has joined the group" not in command:
+            if "has joined the" not in command:
                 response += command + "\r\n"
         response += "Please see my GitHub for further details:\n https://github.com/ElBell/Navi-Slackbot/tree/master"
         return response
