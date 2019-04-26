@@ -85,7 +85,7 @@ def parse_message(message):
 
 
 def is_link(text):
-    if len(text) > 0 and '<' in text and text[text.index('<') + 1] == 'h':
+    if len(text) > 0 and '<' in text and text[text.index('<') + 1] == 'h' and 'gist.github.com/ElBell' not in text:
         return True
     return False
 
