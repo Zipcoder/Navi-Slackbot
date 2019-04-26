@@ -3,8 +3,7 @@ For saving links
 
 Hey! I'm a SlackBot for managing links. When invited to a channel, I go through all past links and collect them into a GitHub .md files. I run on Heroku and keep an ear out for any new links added to a channel. 
 
-You can get my attention by typing @Navi followed by a command. For example: 
-
+You can get my attention by typing @Navi followed by a command. For example: <br/>
 @Navi links<br/>
 
 I have the following commands:
