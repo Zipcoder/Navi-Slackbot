@@ -1,4 +1,4 @@
-from history import get_history, get_link_to_links, get_channel_name
+from history import get_history, get_link_to_links, get_channel_name, get_link_to_all
 
 
 class Command(object):
@@ -7,6 +7,7 @@ class Command(object):
         self.commands = {
             "has joined the group": self.history,
             "has joined the channel": self.history,
+            "find all": self.find_all,
             "links": self.links,
             "hey": self.hey,
             "help": self.help
@@ -27,11 +28,13 @@ class Command(object):
 
     def history(self):
         gist = get_history(self.channel)
-        return "I retrieved all the links from " + get_channel_name(self.channel) + ":\n"\
-               + gist
+        return "I retrieved all the links from " + get_channel_name(self.channel) + ":\n" + gist
 
     def links(self):
         return get_link_to_links(self.channel)
+
+    def find_all(self):
+        return get_link_to_all()
 
     def help(self):
         response = "Currently I support the following commands:\r\n"

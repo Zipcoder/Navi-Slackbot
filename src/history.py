@@ -15,6 +15,7 @@ ignored_titles: List[str] = ["not found", "forbidden", "denied"]
 slack_token: str = os.environ["OAUTH_ACCESS_TOKEN"]
 slack_client: SlackClient = SlackClient(slack_token)
 gist_list_id = "af088f66c27df3e6462a6cd0f2a9071c"
+gist_find_all = "4a06315bf0a5593b9ff2456bcb7ef5fb"
 
 
 class Link:
@@ -166,6 +167,10 @@ def get_link_to_links(channel_id):
     return f"https://gist.github.com/ElBell/{keys[channel_id][1]}"
 
 
+def get_link_to_all():
+    return f"https://gist.github.com/ElBell/{gist_find_all}"
+
+
 def get_channel_name(channel_id):
     if channel_id[0] == "C":
         return slack_client.api_call("channels.info", channel=channel_id)["channel"]["name"]
@@ -210,4 +215,18 @@ def get_history(channel_id):
     keys = json.loads(gist.profile().content(id=gist_list_id))
     keys[channel_id] = [json_file['id'], md_file['id']]
     gist.profile().edit(id=gist_list_id, content=json.dumps(keys))
+    get_all_links()
     return md_file['Gist-Link']
+
+
+def get_all_links():
+    gist = Simplegist(username='ElBell', api_token=os.environ["GIST_ACCESS_TOKEN"])
+    keys = json.loads(gist.profile().content(id=gist_list_id))
+    gist.profile().edit(id=gist_find_all, content=generate_all(keys))
+
+
+def generate_all(keys):
+    file = ["# .All links<br/>\n"]
+    for channel_id in sorted(keys.keys()):
+        file.append(f"[{get_channel_name(channel_id)}](https://gist.github.com/ElBell/{keys[channel_id][1]})<br/>")
+    return ''.join(sorted(file))
