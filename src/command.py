@@ -26,9 +26,9 @@ class Command(object):
         return "listen!"
 
     def history(self):
-        get_history(self.channel)
+        gist = get_history(self.channel)
         return "I retrieved all the links from " + get_channel_name(self.channel) + ":\n"\
-               + get_link_to_links(self.channel)
+               + gist
 
     def links(self):
         return get_link_to_links(self.channel)

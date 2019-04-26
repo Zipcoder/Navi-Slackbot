@@ -4,26 +4,24 @@ import time
 import json
 from datetime import datetime
 from typing import List, Dict, Set, Iterator
-
 import requests
 from bs4 import BeautifulSoup
-from git import Repo
 from slackclient import SlackClient
+from simplegist.simplegist import Simplegist
 
 sections = {"git": "GitHub", "stackoverflow": "StackOverflow", "java": "Java", "python": "Python",
             "interview": "Interview", "": "Misc"}
 ignored_titles: List[str] = ["not found", "forbidden", "denied"]
-
 slack_token: str = os.environ["OAUTH_ACCESS_TOKEN"]
 slack_client: SlackClient = SlackClient(slack_token)
+gist_list_id = "b64841c1d0a6a0e251b679eb38ec99b8"
 
 
 class Link:
-    def __init__(self, url, creator, timestamp, reaction_count):
+    def __init__(self, url, creator, timestamp):
         self.url = url
         self.creator = creator
         self.timestamp = timestamp
-        self.reaction_count = reaction_count
 
     def __key(self):
         return self.url, self.creator, self.timestamp
@@ -38,16 +36,14 @@ class Link:
         return {
             'url': self.url,
             'creator': self.creator,
-            'timestamp': self.timestamp,
-            'reaction_count': self.reaction_count
+            'timestamp': self.timestamp
         }
 
     @classmethod
     def from_json(cls, data):
         return cls(data['url'],
                    data['creator'],
-                   data['timestamp'],
-                   data['reaction_count'])
+                   data['timestamp'])
 
 
 # Get users for mapping onto their ids
@@ -85,7 +81,7 @@ def parse_message(message):
     message_text = message['text']
     if is_link(message_text):
         url = message_text[message_text.index('<') + 1:message_text.index('>')]
-        return [Link(url, message['user'], message['ts'], get_reaction_count(message))]
+        return [Link(url, message['user'], message['ts'])]
 
 
 def is_link(text):
@@ -94,24 +90,14 @@ def is_link(text):
     return False
 
 
-def get_reaction_count(message):
-    count = 0
-    if "reactions" not in message:
-        return count
-    for reaction in message["reactions"]:
-        count += reaction["count"]
-
-
 # get links from attachments
 def parse_attachments(message):
     attachment_links = []
     for attachment in message['attachments']:
         if 'original_url' in attachment:
-            attachment_links.append(
-                Link(attachment['original_url'], message['user'], message['ts'], get_reaction_count(message)))
+            attachment_links.append(Link(attachment['original_url'], message['user'], message['ts']))
         if 'app_unfurl_url' in attachment:
-            attachment_links.append(
-                Link(attachment['app_unfurl_url'], message['user'], message['ts'], get_reaction_count(message)))
+            attachment_links.append(Link(attachment['app_unfurl_url'], message['user'], message['ts']))
     return attachment_links
 
 
@@ -156,12 +142,9 @@ def generate_link_md(link: Link, users):
         f"Posted: {datetime.fromtimestamp(float(link.timestamp)).strftime('%b %d %Y %I:%M:%S%p')} <br/> "
 
 
-def generate_md_file(channel_id, channel_name):
-    with open(f"/app/src/files/json/{channel_id}.json") as file_read:
-        json_data = json.load(file_read)
-    sectioned_links = {category: [Link.from_json(link) for link in links] for category, links in json_data.items()}
+def generate_md_file(sectioned_links, channel_id):
     users = get_users()
-    md_file = [f"# {channel_name}"]
+    md_file = [f"# {get_channel_name(channel_id)}"]
     for title, links in sectioned_links.items():
         if len(links) > 0:
             md_file.append(f"\n## {title}<br/>\n")
@@ -171,40 +154,16 @@ def generate_md_file(channel_id, channel_name):
     return ''.join(md_file)
 
 
-def generate_file(channel_id):
-    channel_name = get_channel_name(channel_id)
-    file_string = generate_md_file(channel_id, channel_name)
-    file = open(f"/app/src/files/{channel_name}.md", "w+")
-    file.write(file_string)
-    file.close()
-    return f"src/files/{channel_name}.md"
-
-
-def original_json(channel_id):
-    sectioned_links = get_links(get_messages(channel_id))
+def original_json(sectioned_links):
     json_data = {category: [link.to_json() for link in links]
                  for category, links in sectioned_links.items()}
-
-    with open(f"/app/src/files/json/{channel_id}.json", 'w') as write_file:
-        json.dump(json_data, write_file)
-    return f"src/files/json/{channel_id}.json"
-
-
-def get_history(channel_id):
-    original_json(channel_id)
-    generate_file(channel_id)
-
-# def push_to_git(file_list):
-#     repo = Repo('/app/Navi-Slackbot')
-#     commit_message = 'committing links'
-#     repo.index.add(file_list)
-#     repo.index.commit(commit_message)
-#     origin = repo.remote('origin')
-#     origin.push()
+    return json_data
 
 
 def get_link_to_links(channel_id):
-    return f"https://github.com/ElBell/Navi-Slackbot/blob/master/src/files/{get_channel_name(channel_id)}.md"
+    gist = Simplegist(username='ElBell', api_token=os.environ["GIST_ACCESS_TOKEN"])
+    keys = json.loads(gist.profile().content(id=gist_list_id))
+    return f"https://gist.github.com/ElBell/{keys[channel_id][1]}"
 
 
 def get_channel_name(channel_id):
@@ -222,16 +181,15 @@ def parse_link_or_attachment(message: str) -> List[Link]:
 
 
 def add_link(message, channel_id):
-    links: List[Link] = parse_link_or_attachment(message)
-    with open(f"/app/src/files/json/{channel_id}.json") as file_read:
-        json_data = json.load(file_read)
+    gist = Simplegist(username='ElBell', api_token=os.environ["GIST_ACCESS_TOKEN"])
+    keys = json.loads(gist.profile().content(id=gist_list_id))[channel_id]
+    json_data = json.loads(gist.profile().content(id=keys[0]))
     sectioned_links = {category: [Link.from_json(link) for link in links] for category, links in json_data.items()}
-    add_to_section(links, sectioned_links)
-    json_data = {category: [link.to_json() for link in links]
-                 for category, links in sectioned_links.items()}
-    with open(f"/app/src/files/json/{channel_id}.json", 'w') as write_file:
-        json.dump(json_data, write_file)
-    generate_file(channel_id), f"src/files/json/{channel_id}.json"
+    new_links: List[Link] = parse_link_or_attachment(message)
+    sectioned_links = add_to_section(new_links, sectioned_links)
+    json_data = {category: [link.to_json() for link in links] for category, links in sectioned_links.items()}
+    gist.profile().edit(id=keys[0], content=json.dumps(json_data))
+    gist.profile().edit(id=keys[1], content=generate_md_file(sectioned_links, channel_id))
 
 
 def add_to_section(links, sectioned_links):
@@ -240,3 +198,16 @@ def add_to_section(links, sectioned_links):
             if key in link.url:
                 sectioned_links[title].append(link)
     return sectioned_links
+
+
+def get_history(channel_id):
+    gist = Simplegist(username='ElBell', api_token=os.environ["GIST_ACCESS_TOKEN"])
+    sectioned_links = get_links(get_messages(channel_id))
+    json_file = gist.create(name=get_channel_name(channel_id) + ".json", description="json for channel links",
+                            content=json.dumps(original_json(sectioned_links)))
+    md_file = gist.create(name=get_channel_name(channel_id) + ".md", description="Collected links of channel",
+                          content=generate_md_file(sectioned_links, channel_id))
+    # keys = json.loads(gist.profile().content(id=gist_list_id))
+    keys = {channel_id: [json_file['id'], md_file['id']]}
+    gist.profile().edit(id=gist_list_id, content=json.dumps(keys))
+    return md_file['Gist-Link']

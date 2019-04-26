@@ -1,3 +1,4 @@
+simplegist
 requests
 slackclient
 beautifulsoup4
