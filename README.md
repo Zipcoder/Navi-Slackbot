@@ -13,3 +13,5 @@ I have the following commands:
 * "hey" - listen!
 
 If you're looking for all my links, you can find them by clicking [here](https://gist.github.com/ElBell/4a06315bf0a5593b9ff2456bcb7ef5fb)
+
+ElBell, a zipcode student in cohort 5.0, crafted this with great care.
