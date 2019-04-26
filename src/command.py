@@ -9,8 +9,7 @@ class Command(object):
             "has joined the channel": self.history,
             "find all": self.find_all,
             "links": self.links,
-            "hey": self.hey,
-            "help": self.help
+            "hey": self.hey
         }
 
     def handle_command(self, command, channel):
