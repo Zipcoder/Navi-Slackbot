@@ -14,7 +14,7 @@ sections = {"git": "GitHub", "stackoverflow": "StackOverflow", "java": "Java", "
 ignored_titles: List[str] = ["not found", "forbidden", "denied"]
 slack_token: str = os.environ["OAUTH_ACCESS_TOKEN"]
 slack_client: SlackClient = SlackClient(slack_token)
-gist_list_id = "b64841c1d0a6a0e251b679eb38ec99b8"
+gist_list_id = "af088f66c27df3e6462a6cd0f2a9071c"
 
 
 class Link:
@@ -208,9 +208,6 @@ def get_history(channel_id):
     md_file = gist.create(name=get_channel_name(channel_id) + ".md", description="Collected links of channel",
                           content=generate_md_file(sectioned_links, channel_id))
     keys = json.loads(gist.profile().content(id=gist_list_id))
-    print(keys)
     keys[channel_id] = [json_file['id'], md_file['id']]
-    print("hi")
-    print(keys)
     gist.profile().edit(id=gist_list_id, content=json.dumps(keys))
     return md_file['Gist-Link']
