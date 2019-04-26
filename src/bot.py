@@ -1,5 +1,8 @@
 import os
 import time
+
+from websocket import WebSocketConnectionClosedException
+
 import event
 from slackclient import SlackClient
 
@@ -30,7 +33,10 @@ class Bot(object):
         if self.slack_client.rtm_connect():
             print("Successfully connected, listening for events")
             while True:
-                self.event.wait_for_event()
-                time.sleep(1)
+                try:
+                    self.event.wait_for_event()
+                    time.sleep(1)
+                except WebSocketConnectionClosedException:
+                    self.slack_client.rtm_connect()
         else:
             print(self.slack_client.api_call('rtm.connect'))

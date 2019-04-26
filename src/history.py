@@ -207,7 +207,10 @@ def get_history(channel_id):
                             content=json.dumps(original_json(sectioned_links)))
     md_file = gist.create(name=get_channel_name(channel_id) + ".md", description="Collected links of channel",
                           content=generate_md_file(sectioned_links, channel_id))
-    # keys = json.loads(gist.profile().content(id=gist_list_id))
-    keys = {channel_id: [json_file['id'], md_file['id']]}
+    keys = json.loads(gist.profile().content(id=gist_list_id))
+    print(keys)
+    keys[channel_id] = [json_file['id'], md_file['id']]
+    print("hi")
+    print(keys)
     gist.profile().edit(id=gist_list_id, content=json.dumps(keys))
     return md_file['Gist-Link']
