@@ -226,7 +226,7 @@ def get_all_links():
 
 
 def generate_all(keys):
-    file = ["# .All links<br/>\n"]
+    file = []
     for channel_id in sorted(keys.keys()):
         file.append(f"[{get_channel_name(channel_id)}](https://gist.github.com/ElBell/{keys[channel_id][1]})<br/>")
-    return ''.join(sorted(file))
+    return "# .All links<br/>\n" + ''.join(sorted(file))
