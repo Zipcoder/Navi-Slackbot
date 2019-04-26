@@ -4,3 +4,6 @@ build/*
 env/*
 env_vars.py
 *.pyc
+
+venv
+.DS_Store
